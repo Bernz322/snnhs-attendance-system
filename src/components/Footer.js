@@ -8,6 +8,11 @@ const useStyles = createStyles((theme) => ({
         borderTop: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[2]
             }`,
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[8] : theme.colors.gray[0],
+        position: 'relative',
+        zIndex: 99,
+        [theme.fn.smallerThan('xs')]: {
+            zIndex: 4,
+        },
     },
     links: {
         display: "flex",
@@ -22,6 +27,7 @@ const useStyles = createStyles((theme) => ({
         alignItems: 'center',
         paddingTop: theme.spacing.xl,
         paddingBottom: theme.spacing.xl,
+        position: 'relative',
 
         [theme.fn.smallerThan('xs')]: {
             flexDirection: 'column',

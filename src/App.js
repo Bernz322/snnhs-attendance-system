@@ -39,14 +39,14 @@ function App() {
  * https://stackoverflow.com/questions/70193712/how-to-scroll-to-top-on-route-change-with-react-router-dom-v6
  * @returns {void}
  */
-  const ScrollToTop = () => {
-    const { pathname } = useLocation();
-    useEffect(() => {
-      window.scrollTo(0, 0);
-    }, [pathname]);
+  // const ScrollToTop = () => {
+  //   const { pathname } = useLocation();
+  //   useEffect(() => {
+  //     window.scrollTo(0, 0);
+  //   }, [pathname]);
 
-    return null;
-  }
+  //   return null;
+  // }
   const [user, setUser] = useState(true);
 
   return (
@@ -56,7 +56,7 @@ function App() {
 
           <>
             <Navbar user={user} />
-            <ScrollToTop />
+            {/* <ScrollToTop /> */}
             {user ?
               <Routes>
                 <Route path="/" element={<DashboardPage />} />

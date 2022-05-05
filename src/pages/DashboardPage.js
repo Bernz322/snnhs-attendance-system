@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { AppShell, Navbar, createStyles, Paper, Container, Group } from '@mantine/core';
+import { AppShell, Navbar, createStyles, Paper, Container, Group, Title } from '@mantine/core';
 import { CalendarStats, LayoutDashboard, User } from 'tabler-icons-react';
 
 import TopBar from '../components/Navbar'
-import { LightDarkButton, ProfileMenu } from '../components';
+import { CalendarView, LightDarkButton, ProfileMenu } from '../components';
 
 const useStyles = createStyles((theme) => ({
     main: {
@@ -41,8 +41,7 @@ const useStyles = createStyles((theme) => ({
     paper2: {
         borderRadius: 15,
         backgroundColor: theme.colorScheme === 'dark' ? '#424242' : theme.colors.gray[0],
-        paddingTop: 15,
-        paddingBottom: 15,
+        padding: 25,
         width: '100%'
     },
     left: {
@@ -68,7 +67,7 @@ export default function DashboardPage() {
     return (
         <AppShell className={classes.main} navbarOffsetBreakpoint="sm" asideOffsetBreakpoint="sm" fixed
             navbar={
-                <Navbar p="md" hiddenBreakpoint="sm" hidden={!openedDashboard} width={{ sm: 200, lg: 300 }}>
+                <Navbar p="md" hiddenBreakpoint="sm" hidden={!openedDashboard} width={{ sm: 200, lg: 300 }} style={{ zIndex: 5, }}>
                     <Navbar.Section grow mt="xl">
                         {account.map((item) => (
                             <a className={cx(classes.link, { [classes.linkActive]: item.label === active })}
@@ -98,42 +97,14 @@ export default function DashboardPage() {
             <Container size="xl" className={classes.filter}>
                 {(active === "User" || active === "Dashboard") &&
                     <Paper className={classes.paper2}>
-                        <h1>User Table</h1>
+                        <Title order={1} align='center'>User Table</Title>
                     </Paper >
                 }
 
                 {(active === "Attendance" || active === "Dashboard") &&
                     <Paper className={classes.paper2} mt="lg">
-                        <h1>Attendance Table</h1>
-                        {/* <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1>
-                        <h1>Attendance Table</h1> */}
+                        <Title order={1} align='center' mb='md'>Attendance</Title>
+                        <CalendarView />
                     </Paper>
                 }
             </Container>
