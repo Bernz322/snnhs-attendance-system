@@ -1,7 +1,8 @@
 import React from 'react';
 import { useForm } from '@mantine/hooks';
-import { TextInput, PasswordInput, Text, Paper, Group, Button, Divider, createStyles, Container } from '@mantine/core';
+import { TextInput, PasswordInput, Text, Paper, Group, Button, Divider, createStyles, Container, Space } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
+import { Helmet } from 'react-helmet'
 
 const useStyles = createStyles((theme) => ({
     paper: {
@@ -10,6 +11,7 @@ const useStyles = createStyles((theme) => ({
         paddingTop: 105,
         paddingLeft: 15,
         paddingRight: 15,
+        paddingBottom: 20,
     },
     container: {
         backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[9] : theme.colors.gray[2],
@@ -71,20 +73,16 @@ export default function Auth({ setUser }) {
 
     return (
         <Paper radius={0} className={classes.paper}>
+            <Helmet>
+                <title>Login - SNNHS Attendance System</title>
+            </Helmet>
             <Container size={420} my={40} className={classes.container} style={{ padding: "50px 35px" }}>
                 <Text size="lg" weight={500}>
                     Welcome to <span className={classes.title}>SNNHS</span> Attendance System
                 </Text>
-
-                <Group grow mb="md" mt="md">
-                    <Button className={classes.button}>Continue with Google</Button>
-                </Group>
-
-                <Divider label="Or continue with email" labelPosition="center" my="lg" />
-
+                <Space h='lg' />
                 <form onSubmit={handleSubmit}>
                     <Group direction="column" grow>
-
                         <TextInput required label="Email" placeholder="pogi@vacay.io" value={form.values.email}
                             onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
                             error={form.errors.email && 'Invalid email'}

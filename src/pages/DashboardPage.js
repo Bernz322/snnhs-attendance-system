@@ -3,7 +3,8 @@ import { AppShell, Navbar, createStyles, Paper, Container, Group, Title } from '
 import { CalendarStats, LayoutDashboard, User } from 'tabler-icons-react';
 
 import TopBar from '../components/Navbar'
-import { CalendarView, LightDarkButton, ProfileMenu } from '../components';
+import { CalendarView, LightDarkButton, ProfileMenu, TableView } from '../components';
+import { Helmet } from 'react-helmet';
 
 const useStyles = createStyles((theme) => ({
     main: {
@@ -53,7 +54,7 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
-export default function DashboardPage() {
+export default function DashboardPage({ colorScheme }) {
     const { classes, cx } = useStyles();
     const [active, setActive] = useState('Dashboard');
     const [openedDashboard, setOpenedDashboard] = useState(false);
@@ -95,9 +96,13 @@ export default function DashboardPage() {
             }
         >
             <Container size="xl" className={classes.filter}>
+                <Helmet>
+                    <title>Dashboard - SNNHS Attendance System</title>
+                </Helmet>
                 {(active === "User" || active === "Dashboard") &&
                     <Paper className={classes.paper2}>
                         <Title order={1} align='center'>User Table</Title>
+                        <TableView colorScheme={colorScheme} />
                     </Paper >
                 }
 

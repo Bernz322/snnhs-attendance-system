@@ -6,6 +6,7 @@ import { useHotkeys } from '@mantine/hooks';
 
 import { Auth, Page404, DashboardPage } from "./pages";
 import { Navbar, Footer } from "./components";
+import { Helmet } from "react-helmet";
 
 function App() {
   const [colorScheme, setColorScheme] = useState(JSON.parse(localStorage.getItem('mantine-color-scheme')) || 'light');
@@ -55,11 +56,14 @@ function App() {
         <NotificationsProvider>
 
           <>
+            <Helmet>
+              <title>SNNHS Attendance System</title>
+            </Helmet>
             <Navbar user={user} />
             {/* <ScrollToTop /> */}
             {user ?
               <Routes>
-                <Route path="/" element={<DashboardPage />} />
+                <Route path="/" element={<DashboardPage colorScheme={colorScheme} />} />
                 <Route path="*" element={<Page404 />} />
               </Routes>
               :

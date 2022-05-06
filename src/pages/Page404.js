@@ -1,6 +1,7 @@
 import React from 'react';
 import { createStyles, Title, Text, Button, Container, Group, Paper } from '@mantine/core';
 import { useNavigate } from "react-router-dom";
+import Helmet from 'react-helmet'
 
 const useStyles = createStyles((theme) => ({
     label: {
@@ -48,6 +49,9 @@ export default function Page404() {
 
     return (
         <Paper radius={0} className={classes.paper}>
+            <Helmet>
+                <title>Page 404</title>
+            </Helmet>
             <Container size="xl">
                 <div className={classes.label}>404</div>
                 <Title className={classes.title}>You have found a secret place.</Title>
