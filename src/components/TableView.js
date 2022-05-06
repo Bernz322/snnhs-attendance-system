@@ -1,7 +1,9 @@
-import React, { useState } from 'react'
-import { Button, createStyles, Paper, Tooltip, TextInput } from '@mantine/core';
+import React, { useState, useRef } from 'react'
+import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput } from '@mantine/core';
 import DataTable from 'react-data-table-component'
 import { ArrowNarrowDown, Edit, Eye, Trash } from 'tabler-icons-react';
+import { faker } from '@faker-js/faker';
+import dayjs from 'dayjs'
 
 const useStyles = createStyles((theme, { floating }) => ({
     paper: {
@@ -58,17 +60,86 @@ const customStyles = {
 }
 
 export default function TableView({ colorScheme }) {
+    // Style and Filter States
     const [focused, setFocused] = useState(false);
     const [filterByName, setFilterByName] = useState('');
     const { classes } = useStyles({ floating: filterByName.trim().length !== 0 || focused });
 
-    const handleUserUpdateButtonClick = (row) => {
-        console.log(row)
+    // Modal States
+    const [addUserOpened, setAddUserOpened] = useState(false);
+    const [editProfileOpened, setEditProfileOpened] = useState(false);
+    const [deleteUserModal, setDeleteUserModal] = useState(false);
+
+    // Selected Row User State
+    const [selectedUserData, setSelectedUserData] = useState();
+    const [userIdToDelete, setUserIdToDelete] = useState();
+
+    // Input Refs
+    const rfid = useRef("")
+    const name = useRef("")
+    const email = useRef("")
+    const password = useRef("")
+    const phone = useRef(null)
+    const level = useRef(null)
+
+    const createUser = () => ({
+        id: faker.datatype.number(2000),
+        rfid: faker.datatype.string(10),
+        name: faker.name.findName(),
+        email: faker.internet.email(),
+        password: faker.random.alpha(10),
+        phone_number: faker.phone.phoneNumberFormat(),
+        level: faker.datatype.number({ max: 12, min: 11 }),
+    });
+
+    const createUsers = (numUsers = 5) => new Array(numUsers).fill(undefined).map(createUser);
+
+    const fakeUsers = createUsers(2000);
+
+    // Add User
+    const handleUserAddButtonClick = () => {
+        setAddUserOpened(true)
     }
-    const handleUserDeleteButtonClick = (id) => {
-        console.log('User ID', id)
+    const handleAddUser = () => {
+        const newUserData = {
+            rfid: rfid.current.value,
+            name: name.current.value,
+            email: email.current.value,
+            password: password.current.value,
+            phone: phone.current.value,
+            level: level.current.value,
+        }
+        console.log('New User', newUserData)
+        setAddUserOpened(false)
     }
 
+    // Update User
+    const handleUserUpdateButtonClick = (userRowData) => {
+        setEditProfileOpened(true)
+        setSelectedUserData(userRowData)
+    }
+    const handleUserUpdate = () => {
+        const updateData = {
+            name: name.current.value,
+            email: email.current.value,
+            password: password.current.value,
+            phone: phone.current.value,
+            level: level.current.value,
+        }
+        console.log('Update User', updateData)
+        setEditProfileOpened(false)
+    }
+
+    // Delete User
+    const handleUserDeleteButtonClick = (id) => {
+        setUserIdToDelete(id)
+        setDeleteUserModal(true)
+    }
+    const handleUserDelete = () => {
+        console.log('User ID', userIdToDelete)
+    }
+
+    // Table Configs
     const usersColumns = [
         { name: 'User ID', selector: row => row.id, sortable: true, left: true },
         { name: 'RFID', selector: row => row.rfid, sortable: true, left: true },
@@ -82,7 +153,7 @@ export default function TableView({ colorScheme }) {
             minWidth: '200px',
             cell: (row) => (
                 <>
-                    <Tooltip label="View User Profile" withArrow radius="md">
+                    <Tooltip label="View User Attendance Record" withArrow radius="md">
                         <Button radius="md" size="xxs" color='green'>
                             <Eye size={14} strokeWidth={2} />
                         </Button>
@@ -103,42 +174,109 @@ export default function TableView({ colorScheme }) {
         },
     ];
 
-    const userData = [{
-        id: 1,
-        rfid: 1234567,
-        name: "Gigachard",
-        email: 'gigachard@gmail.com',
-        password: "strongboi437",
-        phone_number: 9071234567,
-        level: 8,
-    }]
+    const userData = [
+        {
+            id: 1,
+            rfid: 1234567,
+            name: "Gigachard",
+            email: 'gigachard@gmail.com',
+            password: "very-strongboi437",
+            phone_number: 9071234567,
+            level: 8,
+        },
+        {
+            id: 2,
+            rfid: 1234567,
+            name: "Megachard",
+            email: 'megachard@gmail.com',
+            password: "strongboi437",
+            phone_number: 9071234567,
+            level: 8,
+        },
+        {
+            id: 3,
+            rfid: 1234567,
+            name: "Kilochard",
+            email: 'Kilochard@gmail.com',
+            password: "not-so-strongboi437",
+            phone_number: 9071234567,
+            level: 8,
+        },
+    ]
+
+    const filteredItems = fakeUsers.filter(
+        item => item.name && item.name.toLowerCase().includes(filterByName.toLowerCase()),
+    );
 
     return (
         <Paper className={classes.paper}>
-            <TextInput
-                label="Filter by Name"
-                placeholder="Search Student Name"
-                classNames={classes}
-                value={filterByName}
-                onChange={(event) => setFilterByName(event.currentTarget.value)}
-                onFocus={() => setFocused(true)}
-                onBlur={() => setFocused(false)}
-                mt="md"
-                mb="lg"
-                autoComplete="nope"
-            />
+            <Group position="apart">
+                <TextInput
+                    label="Filter by Name"
+                    placeholder="Search Student Name"
+                    classNames={classes}
+                    value={filterByName}
+                    onChange={(event) => setFilterByName(event.currentTarget.value)}
+                    onFocus={() => setFocused(true)}
+                    onBlur={() => setFocused(false)}
+                    mt="md"
+                    mb="lg"
+                    autoComplete="nope"
+                />
+                <Button radius="sm" color="#800000" onClick={handleUserAddButtonClick}>Add User</Button>
+            </Group>
+
             <DataTable
                 title="All Users"
                 columns={usersColumns}
-                data={userData}
+                data={filteredItems}
                 pagination
                 dense
                 highlightOnHover
                 pointerOnHover
+                // progressPending={loading}
                 sortIcon={<ArrowNarrowDown />}
                 theme={colorScheme === 'dark' ? 'dark' : 'light'}
                 customStyles={customStyles}
             />
+
+            {/* Add User Modals */}
+            <Modal opened={addUserOpened} onClose={() => setAddUserOpened(false)} title="Add User" >
+                <TextInput placeholder='New RFID Tag' required value={rfid?.current?.value} label="RFID" ref={rfid} style={{ width: '100%', margin: '0 5px' }} />
+                <TextInput placeholder='Juan dela Cruz' required value={name?.current?.value} label="Name" ref={name} style={{ width: '100%', margin: '0 5px' }} />
+                <TextInput placeholder='juandelacruz@gmail.com' required label="Email" value={email?.current?.value} ref={email} />
+                <PasswordInput placeholder='password143' required label="Password" value={email?.current?.value} ref={password} />
+                <NumberInput placeholder='9071234567' required ref={phone} maxLength={10} hideControls label="Phone" value={phone?.current?.value} />
+                <NumberInput placeholder='11 or 12' required ref={level} maxLength={2} hideControls label="Grade Level" value={level?.current?.value} />
+
+                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleAddUser}>{false ? <Loader color="white" size="sm" /> : "Add User"}</Button>
+            </Modal>
+
+            {/* Edit User Modal */}
+            <Modal opened={editProfileOpened} onClose={() => setEditProfileOpened(false)} title="Update user profile" >
+                <Text className={classes.userInfo}>Created on: {dayjs(selectedUserData?.createdAt).format('DD/MMM/YYYY')}</Text>
+                <TextInput placeholder={selectedUserData?.name} label="Name"
+                    ref={name} style={{ width: '100%', margin: '0 5px' }} />
+                <TextInput label="Email" placeholder={selectedUserData?.email}
+                    ref={email}
+                />
+                <TextInput label="Password" placeholder={selectedUserData?.email}
+                    ref={password}
+                />
+                <NumberInput ref={phone} maxLength={10} hideControls label="Phone" placeholder={selectedUserData?.phone_number} />
+                <NumberInput ref={level} maxLength={2} hideControls label="Grade Level" placeholder={selectedUserData?.level} />
+
+                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleUserUpdate}>{true ? <Loader color="white" size="sm" /> : "Update"}</Button>
+            </Modal>
+
+            {/* Delete User Modal */}
+            <Modal opened={deleteUserModal} onClose={() => setDeleteUserModal(false)} title="Are you sure to delete this account?" centered >
+                <Text align='center' color='yellow' size='sm'>All created listings and reservations will also be deleted.</Text>
+                <Group position="apart" mt='md'>
+                    <Button radius="md" style={{ width: "100%", flex: 6 }} color="red" onClick={() => handleUserDelete()}>Yes</Button>
+                    <Button radius="md" style={{ width: "100%", flex: 6 }} color="blue" onClick={() => setDeleteUserModal(false)}>No</Button>
+                </Group>
+            </Modal>
         </Paper >
     )
 }
