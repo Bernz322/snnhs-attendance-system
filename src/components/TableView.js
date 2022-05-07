@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput } from '@mantine/core';
+import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput, LoadingOverlay } from '@mantine/core';
 import DataTable from 'react-data-table-component'
-import { ArrowNarrowDown, Edit, Eye, Trash } from 'tabler-icons-react';
-import { faker } from '@faker-js/faker';
+import { ArrowNarrowDown, Edit, Eye, Trash, Check, X } from 'tabler-icons-react';
 import dayjs from 'dayjs'
 import { useSelector, useDispatch } from 'react-redux';
+import { showNotification } from '@mantine/notifications';
 
 import { fetchUserAttendance } from '../features/attendance/attendanceSlice'
+import { fetchUsers, addUser, updateUser, deleteUser, userReset } from '../features/user/userSlice'
 
 const useStyles = createStyles((theme, { floating }) => ({
     paper: {
@@ -64,9 +65,10 @@ const customStyles = {
 
 export default function TableView({ colorScheme }) {
     const dispatch = useDispatch()
-    const { attendance, isAttendanceLoading } = useSelector(state => state.attendance)
+    const { users, isUserLoading, isUserSuccess, isUserError, UserMessage } = useSelector(state => state.user)
 
-    const [userRFID, setUserRFID] = useState('14A723');
+    const [rerender, setRerender] = useState(false);
+
     // Style and Filter States
     const [focused, setFocused] = useState(false);
     const [filterByName, setFilterByName] = useState('');
@@ -86,22 +88,13 @@ export default function TableView({ colorScheme }) {
     const name = useRef("")
     const email = useRef("")
     const password = useRef("")
-    const phone = useRef(null)
-    const level = useRef(null)
+    const phone = useRef(0)
+    const level = useRef(0)
 
-    const createUser = () => ({
-        id: faker.datatype.number(2000),
-        rfid: faker.datatype.string(10),
-        name: faker.name.findName(),
-        email: faker.internet.email(),
-        password: faker.random.alpha(10),
-        phone_number: faker.phone.phoneNumberFormat(),
-        level: faker.datatype.number({ max: 12, min: 11 }),
-    });
-
-    const createUsers = (numUsers = 5) => new Array(numUsers).fill(undefined).map(createUser);
-
-    const fakeUsers = createUsers(2000);
+    // View User Attendance
+    const handleUserViewButtonClick = (userRFID) => {
+        dispatch(fetchUserAttendance(userRFID))
+    }
 
     // Add User
     const handleUserAddButtonClick = () => {
@@ -114,10 +107,42 @@ export default function TableView({ colorScheme }) {
             email: email.current.value,
             password: password.current.value,
             phone: phone.current.value,
-            level: level.current.value,
+            grade_level: level.current.value,
         }
-        console.log('New User', newUserData)
+
+        if (!newUserData.rfid || !newUserData.name || !newUserData.email || !newUserData.password || !newUserData.phone || !newUserData.grade_level) {
+            return showNotification({
+                title: 'Fill in all fields',
+                autoClose: 2000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
+        dispatch(addUser(newUserData))
         setAddUserOpened(false)
+
+        if (!isUserLoading) {
+            dispatch(userReset())
+            if (isUserSuccess) {
+                dispatch(userReset())
+                showNotification({
+                    title: 'Successfully Added',
+                    autoclose: 2500,
+                    color: "green"
+                })
+            }
+
+            if (isUserError) {
+                showNotification({
+                    title: 'Failed',
+                    message: UserMessage,
+                    autoclose: 5000,
+                    color: "red"
+                })
+            }
+            setRerender(!rerender)
+        }
     }
 
     // Update User
@@ -127,14 +152,17 @@ export default function TableView({ colorScheme }) {
     }
     const handleUserUpdate = () => {
         const updateData = {
+            userRFID: selectedUserData.RFID,
+            rfid: rfid.current.value,
             name: name.current.value,
             email: email.current.value,
             password: password.current.value,
             phone: phone.current.value,
-            level: level.current.value,
+            grade_level: level.current.value,
         }
-        console.log('Update User', updateData)
+        dispatch(updateUser(updateData))
         setEditProfileOpened(false)
+        setRerender(!rerender)
     }
 
     // Delete User
@@ -143,25 +171,48 @@ export default function TableView({ colorScheme }) {
         setDeleteUserModal(true)
     }
     const handleUserDelete = () => {
-        console.log('User ID', userIdToDelete)
+        dispatch(deleteUser(userIdToDelete))
+        setDeleteUserModal(false)
+
+
+        if (!isUserLoading) {
+            dispatch(userReset())
+            if (isUserError) {
+                showNotification({
+                    title: 'Deleted user failed!',
+                    message: UserMessage,
+                    autoClose: 5000,
+                    color: 'red',
+                    icon: <X />
+                })
+            }
+
+            if (isUserSuccess) {
+                showNotification({
+                    title: 'Deleted user successfully!',
+                    autoClose: 3000,
+                    color: 'green',
+                    icon: <Check />
+                })
+            }
+
+            setRerender(!rerender)
+        }
     }
 
     useEffect(() => {
-        dispatch(fetchUserAttendance(userRFID))
-        console.log('i ran')
-    }, [dispatch, userRFID]);
-
-    console.log(attendance)
+        dispatch(fetchUsers())
+    }, [dispatch, rerender]);
 
     // Table Configs
     const usersColumns = [
         { name: 'User ID', selector: row => row.id, sortable: true, left: true },
-        { name: 'RFID', selector: row => row.rfid, sortable: true, left: true },
+        { name: 'RFID', selector: row => row.RFID, sortable: true, left: true },
         { name: 'Name', selector: row => row.name, sortable: true, left: true, },
         { name: 'Email', selector: row => row.email, left: true, compact: true, sortable: true, },
         { name: 'Password', selector: row => row.password, sortable: true, left: true, },
-        { name: 'Phone', selector: row => `+63${row.phone_number}`, left: true, compact: true, sortable: true, },
-        { name: 'Grade', selector: row => row.level, left: true, compact: true, sortable: true, },
+        { name: 'Phone', selector: row => `+63${row.phone}`, left: true, compact: true, sortable: true, },
+        { name: 'Grade', selector: row => row.grade_level, center: true, compact: true, sortable: true, },
         {
             name: 'Actions',
             minWidth: '200px',
@@ -169,7 +220,7 @@ export default function TableView({ colorScheme }) {
                 <>
                     <Tooltip label="View User Attendance Record" withArrow radius="md">
                         <Button radius="md" size="xxs" color='green'>
-                            <Eye size={14} strokeWidth={2} onClick={() => setUserRFID(row.rfid)} />
+                            <Eye size={14} strokeWidth={2} onClick={() => handleUserViewButtonClick(row.RFID)} />
                         </Button>
                     </Tooltip>
                     <Tooltip label="Edit User" withArrow radius="md">
@@ -178,7 +229,7 @@ export default function TableView({ colorScheme }) {
                         </Button>
                     </Tooltip>
                     <Tooltip label="Delete User" withArrow radius="md">
-                        <Button radius="md" ml="sm" size="xxs" color='red' onClick={() => handleUserDeleteButtonClick(row.id)}>
+                        <Button radius="md" ml="sm" size="xxs" color='red' onClick={() => handleUserDeleteButtonClick(row.RFID)}>
                             <Trash size={14} strokeWidth={2} />
                         </Button>
                     </Tooltip>
@@ -188,12 +239,13 @@ export default function TableView({ colorScheme }) {
         },
     ];
 
-    const filteredItems = fakeUsers.filter(
+    const filteredItems = users.filter(
         item => item.name && item.name.toLowerCase().includes(filterByName.toLowerCase()),
     );
 
     return (
         <Paper className={classes.paper}>
+            <LoadingOverlay visible={isUserLoading} overlayOpacity={0.3} overlayColor="#c5c5c5" />
             <Group position="apart">
                 <TextInput
                     label="Filter by Name"
@@ -213,12 +265,12 @@ export default function TableView({ colorScheme }) {
             <DataTable
                 title="All Users"
                 columns={usersColumns}
-                // data={filteredItems}
+                data={filteredItems}
                 pagination
                 dense
                 highlightOnHover
                 pointerOnHover
-                // progressPending={loading}
+                progressPending={isUserLoading}
                 sortIcon={<ArrowNarrowDown />}
                 theme={colorScheme === 'dark' ? 'dark' : 'light'}
                 customStyles={customStyles}
@@ -226,31 +278,29 @@ export default function TableView({ colorScheme }) {
 
             {/* Add User Modals */}
             <Modal opened={addUserOpened} onClose={() => setAddUserOpened(false)} title="Add User" >
-                <TextInput placeholder='New RFID Tag' required value={rfid?.current?.value} label="RFID" ref={rfid} style={{ width: '100%', margin: '0 5px' }} />
-                <TextInput placeholder='Juan dela Cruz' required value={name?.current?.value} label="Name" ref={name} style={{ width: '100%', margin: '0 5px' }} />
-                <TextInput placeholder='juandelacruz@gmail.com' required label="Email" value={email?.current?.value} ref={email} />
-                <PasswordInput placeholder='password143' required label="Password" value={email?.current?.value} ref={password} />
-                <NumberInput placeholder='9071234567' required ref={phone} maxLength={10} hideControls label="Phone" value={phone?.current?.value} />
-                <NumberInput placeholder='11 or 12' required ref={level} maxLength={2} hideControls label="Grade Level" value={level?.current?.value} />
+                <TextInput placeholder='New RFID Tag' required label="RFID" ref={rfid} />
+                <TextInput placeholder='Juan dela Cruz' required label="Name" ref={name} />
+                <TextInput placeholder='juandelacruz@gmail.com' required label="Email" ref={email} />
+                <PasswordInput placeholder='password143' required label="Password" ref={password} />
+                <NumberInput placeholder='9071234567' required ref={phone} maxLength={10} hideControls label="Phone" />
+                <NumberInput placeholder='11 or 12' required ref={level} maxLength={2} hideControls label="Grade Level" />
 
-                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleAddUser}>{false ? <Loader color="white" size="sm" /> : "Add User"}</Button>
+                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleAddUser}>{isUserLoading ? <Loader color="white" size="sm" /> : "Add User"}</Button>
             </Modal>
 
             {/* Edit User Modal */}
             <Modal opened={editProfileOpened} onClose={() => setEditProfileOpened(false)} title="Update user profile" >
                 <Text className={classes.userInfo}>Created on: {dayjs(selectedUserData?.createdAt).format('DD/MMM/YYYY')}</Text>
-                <TextInput placeholder={selectedUserData?.name} label="Name"
-                    ref={name} style={{ width: '100%', margin: '0 5px' }} />
-                <TextInput label="Email" placeholder={selectedUserData?.email}
-                    ref={email}
-                />
-                <TextInput label="Password" placeholder={selectedUserData?.email}
-                    ref={password}
-                />
-                <NumberInput ref={phone} maxLength={10} hideControls label="Phone" placeholder={selectedUserData?.phone_number} />
-                <NumberInput ref={level} maxLength={2} hideControls label="Grade Level" placeholder={selectedUserData?.level} />
+                <Text className={classes.userInfo}>User RFID: {selectedUserData?.RFID}</Text>
 
-                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleUserUpdate}>{true ? <Loader color="white" size="sm" /> : "Update"}</Button>
+                <TextInput label="RFID" placeholder={selectedUserData?.RFID} ref={rfid} />
+                <TextInput placeholder={selectedUserData?.name} label="Name" ref={name} />
+                <TextInput label="Email" placeholder={selectedUserData?.email} ref={email} />
+                <PasswordInput placeholder='password143' required label="Password" ref={password} />
+                <NumberInput ref={phone} maxLength={10} hideControls label="Phone" placeholder={selectedUserData?.phone} />
+                <NumberInput ref={level} maxLength={2} hideControls label="Grade Level" placeholder={selectedUserData?.grade_level} />
+
+                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleUserUpdate}>{isUserLoading ? <Loader color="white" size="sm" /> : "Update"}</Button>
             </Modal>
 
             {/* Delete User Modal */}

@@ -27,7 +27,7 @@ const attendanceSlice = createSlice({
     reducers: {
         attendanceReset: (state) => {
             state.isAttendanceSuccess = false
-            state.isAttendanceSuccess = false
+            state.isAttendanceError = false
             state.isAttendanceLoading = false
             state.attendanceMessage = ""
         }
