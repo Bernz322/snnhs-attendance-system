@@ -1,19 +1,37 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { useState, useEffect } from 'react'
 import { NotificationsProvider } from '@mantine/notifications';
 import { MantineProvider, ColorSchemeProvider } from '@mantine/core';
 import { useHotkeys } from '@mantine/hooks';
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from 'react-router-dom';
+import { Helmet } from "react-helmet";
 
 import { Auth, Page404, DashboardPage } from "./pages";
 import { Navbar, Footer } from "./components";
-import { Helmet } from "react-helmet";
+import { hasTokenExpired } from "./utilities"
+import { logout, authReset } from './features/auth/authSlice';
 
 function App() {
   const [colorScheme, setColorScheme] = useState(JSON.parse(localStorage.getItem('mantine-color-scheme')) || 'light');
+  const { user } = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
 
   useEffect(() => {
     localStorage.setItem("mantine-color-scheme", JSON.stringify(colorScheme));  // Check local storage
-  }, [colorScheme]);
+    if (user !== null || user !== undefined) {
+      if (hasTokenExpired(user)) {
+        dispatch(logout())
+        dispatch(authReset())
+        navigate('/')
+        console.log(
+          "%cExpired token. Please login again.",
+          "color: yellow; font-size: 35px; background-color: red;"
+        );
+      }
+    }
+  }, [colorScheme, dispatch, navigate, user]);
 
   const toggleColorScheme = () => {
     colorScheme === "light" ? setColorScheme("dark") : setColorScheme("light")
@@ -34,22 +52,6 @@ function App() {
     }
   }
 
-  /**
- * Ensures that everytime we switch to another route, we will always be on the top page
- * https://v5.reactrouter.com/web/guides/scroll-restoration
- * https://stackoverflow.com/questions/70193712/how-to-scroll-to-top-on-route-change-with-react-router-dom-v6
- * @returns {void}
- */
-  // const ScrollToTop = () => {
-  //   const { pathname } = useLocation();
-  //   useEffect(() => {
-  //     window.scrollTo(0, 0);
-  //   }, [pathname]);
-
-  //   return null;
-  // }
-  const [user, setUser] = useState(true);
-
   return (
     <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
       <MantineProvider theme={theme}>
@@ -60,14 +62,13 @@ function App() {
               <title>SNNHS Attendance System</title>
             </Helmet>
             <Navbar user={user} />
-            {/* <ScrollToTop /> */}
             {user ?
               <Routes>
                 <Route path="/" element={<DashboardPage colorScheme={colorScheme} />} />
                 <Route path="*" element={<Page404 />} />
               </Routes>
               :
-              <Auth setUser={setUser} />
+              <Auth />
             }
             <Footer />
           </>

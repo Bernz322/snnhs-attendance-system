@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppShell, Navbar, createStyles, Paper, Container, Group, Title } from '@mantine/core';
 import { CalendarStats, LayoutDashboard, User } from 'tabler-icons-react';
+import { Helmet } from 'react-helmet';
+import { useSelector } from 'react-redux';
 
 import TopBar from '../components/Navbar'
-import { CalendarView, LightDarkButton, ProfileMenu, TableView } from '../components';
-import { Helmet } from 'react-helmet';
+import { CalendarView, LightDarkButton, ProfileMenu, TableView, UserCalendarView } from '../components';
 
 const useStyles = createStyles((theme) => ({
     main: {
@@ -56,10 +57,13 @@ const useStyles = createStyles((theme) => ({
 
 export default function DashboardPage({ colorScheme }) {
     const { classes, cx } = useStyles();
+    const { user } = useSelector(state => state.auth)
+
     const [active, setActive] = useState('Dashboard');
+    const [userActive, setUserActive] = useState('Attendance');
     const [openedDashboard, setOpenedDashboard] = useState(false);
 
-    const account = [
+    const navItems = [
         { link: '', label: 'Dashboard', icon: LayoutDashboard },
         { link: '', label: 'User', icon: User },
         { link: '', label: 'Attendance', icon: CalendarStats },
@@ -70,20 +74,28 @@ export default function DashboardPage({ colorScheme }) {
             navbar={
                 <Navbar p="md" hiddenBreakpoint="sm" hidden={!openedDashboard} width={{ sm: 200, lg: 300 }} style={{ zIndex: 5, }}>
                     <Navbar.Section grow mt="xl">
-                        {account.map((item) => (
-                            <a className={cx(classes.link, { [classes.linkActive]: item.label === active })}
-                                href={item.link}
-                                key={item.label}
-                                onClick={(event) => {
-                                    event.preventDefault();
-                                    setActive(item.label);
-                                    setOpenedDashboard(false)
-                                }}
-                            >
-                                <item.icon className={cx(classes.linkIcon, { [classes.linkActive]: item.label === active })} />
-                                <span>{item.label}</span>
+                        {user?.is_admin ?
+                            navItems.map((item) => (
+                                <a className={cx(classes.link, { [classes.linkActive]: item.label === active })}
+                                    href={item.link}
+                                    key={item.label}
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        setActive(item.label);
+                                        setOpenedDashboard(false)
+                                    }}
+                                >
+                                    <item.icon className={cx(classes.linkIcon, { [classes.linkActive]: item.label === active })} />
+                                    <span>{item.label}</span>
+                                </a>
+                            ))
+                            :
+                            <a className={cx(classes.link, { [classes.linkActive]: 'Attendance' === userActive })}
+                                href={'/'} onClick={(event) => { event.preventDefault(); setUserActive('Attendance'); setOpenedDashboard(false) }} >
+                                <CalendarStats className={cx(classes.linkIcon, { [classes.linkActive]: 'Attendance' === userActive })} />
+                                <span>{'Attendance'}</span>
                             </a>
-                        ))}
+                        }
                         <Group position="apart" grow pl="sm" pr="sm" mt="lg" className={classes.left}>
                             <LightDarkButton />
                             <ProfileMenu />
@@ -99,17 +111,25 @@ export default function DashboardPage({ colorScheme }) {
                 <Helmet>
                     <title>Dashboard - SNNHS Attendance System</title>
                 </Helmet>
-                {(active === "User" || active === "Dashboard") &&
-                    <Paper className={classes.paper2}>
-                        <Title order={1} align='center'>User Table</Title>
-                        <TableView colorScheme={colorScheme} />
-                    </Paper >
-                }
+                {user?.is_admin ?
+                    <>
+                        {(active === "User" || active === "Dashboard") &&
+                            <Paper className={classes.paper2}>
+                                <Title order={1} align='center'>User Table</Title>
+                                <TableView colorScheme={colorScheme} />
+                            </Paper >}
 
-                {(active === "Attendance" || active === "Dashboard") &&
+                        {(active === "Attendance" || active === "Dashboard") &&
+                            <Paper className={classes.paper2} mt="lg">
+                                <Title order={1} align='center' mb='md'>Attendance</Title>
+                                <CalendarView />
+                            </Paper>}
+                    </>
+                    :
+                    (userActive === "Attendance") &&
                     <Paper className={classes.paper2} mt="lg">
                         <Title order={1} align='center' mb='md'>Attendance</Title>
-                        <CalendarView />
+                        <UserCalendarView />
                     </Paper>
                 }
             </Container>

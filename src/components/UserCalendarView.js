@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import FullCalendar from '@fullcalendar/react' // must go before plugins
 import dayGridPlugin from '@fullcalendar/daygrid' // a plugin!
 import interactionPlugin from "@fullcalendar/interaction"
 import { LoadingOverlay } from '@mantine/core'
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 
-export default function CalendarView() {
+import { fetchUserAttendance } from '../features/attendance/attendanceSlice'
+
+export default function UserCalendarView() {
+    const dispatch = useDispatch();
+    const { user } = useSelector(state => state.auth)
     const { attendance, isAttendanceLoading } = useSelector(state => state.attendance)
+
+    useEffect(() => {
+        dispatch(fetchUserAttendance(user?.rfid))
+    }, [dispatch, user?.rfid]);
 
     const dates = attendance?.AttendanceRecords?.map((date) => {
         return { title: 'Present', start: date.date, backgroundColor: '#93D58A', borderColor: '#93D58A' }
