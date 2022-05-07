@@ -3,9 +3,7 @@ import axios from 'axios'
 
 const initialState = {
     users: [],
-    isUserError: false,
-    isUserSuccess: false,
-    isUserLoading: false,
+    status: "",
     UserMessage: ""
 }
 
@@ -68,6 +66,7 @@ export const deleteUser = createAsyncThunk("user/delete", async (rfid, thunkAPI)
             }
         }
         const res = await axios.delete(`${API_URL}/${rfid}`, config)
+        console.log(res.data);
         return res.data
     } catch (error) {
         const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString()
@@ -80,69 +79,57 @@ const userSlice = createSlice({
     initialState,
     reducers: {
         userReset: (state) => {
-            state.isUserError = false
-            state.isUserSuccess = false
-            state.isUserLoading = false
+            state.status = ""
             state.UserMessage = ""
         }
     },
     extraReducers: (builder) => {
         builder
             .addCase(fetchUsers.pending, state => {
-                state.isUserLoading = true
+                state.status = "loading"
             })
             .addCase(fetchUsers.fulfilled, (state, action) => {
-                state.isUserLoading = false;
+                state.status = "success"
                 state.users = action.payload;
             })
             .addCase(fetchUsers.rejected, (state, action) => {
-                state.isUserLoading = false;
-                state.isUserError = true;
+                state.status = "failed"
                 state.UserMessage = action.payload;
                 state.users = null;
             })
             .addCase(addUser.pending, (state) => {
-                state.isUserLoading = true
+                state.status = "loading"
             })
             .addCase(addUser.fulfilled, (state, action) => {
-                state.isUserLoading = false
-                state.isUserSuccess = true
-                state.isUserError = false
+                state.status = "success"
                 state.users.push(action.payload)
             })
             .addCase(addUser.rejected, (state, action) => {
-                state.isUserLoading = false
-                state.isUserError = true
-                state.isUserSuccess = false
+                state.status = "failed"
                 state.UserMessage = action.payload
             })
             .addCase(updateUser.pending, (state) => {
-                state.isUserLoading = true
+                state.status = "loading"
             })
             .addCase(updateUser.fulfilled, (state, action) => {
-                state.isUserLoading = false
-                state.isUserSuccess = true
-                state.isUserError = false
+                state.status = "success"
+                state.users = state.users.map((user) =>
+                    user.id === action.payload.id ? action.payload : user
+                );
             })
             .addCase(updateUser.rejected, (state, action) => {
-                state.isUserLoading = false
-                state.isUserError = true
-                state.isUserSuccess = false
+                state.status = "failed"
                 state.UserMessage = action.payload
             })
             .addCase(deleteUser.pending, (state) => {
-                state.isUserLoading = true
+                state.status = "loading"
             })
             .addCase(deleteUser.fulfilled, (state, action) => {
-                state.isUserLoading = false
-                state.isUserSuccess = true
-                state.isUserError = false
-                state.users = state.users.filter(user => user.id !== action.payload.id)
+                state.status = "success"
+                state.users = state.users.filter(user => user.RFID !== action.payload.rfid)
             })
             .addCase(deleteUser.rejected, (state, action) => {
-                state.isUserLoading = false
-                state.isUserError = true
-                state.isUserSuccess = false
+                state.status = "failed"
                 state.UserMessage = action.payload
             })
     }

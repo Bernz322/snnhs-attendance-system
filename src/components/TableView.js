@@ -65,7 +65,7 @@ const customStyles = {
 
 export default function TableView({ colorScheme }) {
     const dispatch = useDispatch()
-    const { users, isUserLoading, isUserSuccess, isUserError, UserMessage } = useSelector(state => state.user)
+    const { users, status, UserMessage } = useSelector(state => state.user)
 
     const [rerender, setRerender] = useState(false);
 
@@ -122,25 +122,21 @@ export default function TableView({ colorScheme }) {
         dispatch(addUser(newUserData))
         setAddUserOpened(false)
 
-        if (!isUserLoading) {
-            if (isUserSuccess) {
+        if (status === 'success') {
+            showNotification({
+                title: 'Successfully Added',
+                autoclose: 2500,
+                color: "green"
+            })
+        }
 
-                showNotification({
-                    title: 'Successfully Added',
-                    autoclose: 2500,
-                    color: "green"
-                })
-            }
-
-            if (isUserError) {
-                showNotification({
-                    title: 'Failed',
-                    message: UserMessage,
-                    autoclose: 5000,
-                    color: "red"
-                })
-            }
-            setRerender(!rerender)
+        if (status === 'failed') {
+            showNotification({
+                title: 'Failed',
+                message: UserMessage,
+                autoclose: 5000,
+                color: "red"
+            })
         }
     }
 
@@ -162,27 +158,24 @@ export default function TableView({ colorScheme }) {
         dispatch(updateUser(updateData))
         setEditProfileOpened(false)
 
-        if (!isUserLoading) {
-            if (isUserSuccess) {
+        if (status === 'success') {
 
-                showNotification({
-                    title: 'Successfully Updated',
-                    autoclose: 2500,
-                    color: "green"
-                })
-            }
-
-            if (isUserError) {
-                showNotification({
-                    title: 'Failed',
-                    message: UserMessage,
-                    autoclose: 5000,
-                    color: "red"
-                })
-            }
-            setRerender(!rerender)
+            showNotification({
+                title: 'Successfully Updated',
+                autoclose: 2500,
+                color: "green"
+            })
         }
-        dispatch(fetchUsers())
+
+        if (status === 'failed') {
+            showNotification({
+                title: 'Failed',
+                message: UserMessage,
+                autoclose: 5000,
+                color: "red"
+            })
+        }
+        setRerender(!rerender)
     }
 
     // Delete User
@@ -194,26 +187,27 @@ export default function TableView({ colorScheme }) {
         dispatch(deleteUser(userIdToDelete))
         setDeleteUserModal(false)
 
-        if (!isUserLoading) {
-            if (isUserError) {
-                showNotification({
-                    title: 'Deleting user failed!',
-                    message: UserMessage,
-                    autoClose: 5000,
-                    color: 'red',
-                    icon: <X />
-                })
-            }
-            if (isUserSuccess) {
-                showNotification({
-                    title: 'Deleted user successfully!',
-                    autoClose: 3000,
-                    color: 'green',
-                    icon: <Check />
-                })
-            }
-            setRerender(!rerender)
+        if (status === 'failed') {
+            showNotification({
+                title: 'Deleting user failed!',
+                message: UserMessage,
+                autoClose: 5000,
+                color: 'red',
+                icon: <X />
+            })
         }
+
+        if (status === 'success') {
+            showNotification({
+                title: 'Deleted user successfully!',
+                autoClose: 3000,
+                color: 'green',
+                icon: <Check />
+            })
+        }
+
+        setRerender(!rerender)
+
     }
 
     useEffect(() => {
@@ -263,7 +257,7 @@ export default function TableView({ colorScheme }) {
 
     return (
         <Paper className={classes.paper}>
-            <LoadingOverlay visible={isUserLoading} overlayOpacity={0} overlayColor="red" />
+            <LoadingOverlay visible={status === 'loading'} overlayOpacity={0} overlayColor="red" />
             <Group position="apart">
                 <TextInput
                     label="Filter by Name"
@@ -288,7 +282,7 @@ export default function TableView({ colorScheme }) {
                 dense
                 highlightOnHover
                 pointerOnHover
-                progressPending={isUserLoading}
+                progressPending={status === 'loading'}
                 sortIcon={<ArrowNarrowDown />}
                 theme={colorScheme === 'dark' ? 'dark' : 'light'}
                 customStyles={customStyles}
@@ -303,7 +297,7 @@ export default function TableView({ colorScheme }) {
                 <NumberInput placeholder='9071234567' required ref={phone} maxLength={10} hideControls label="Phone" />
                 <NumberInput placeholder='11 or 12' required ref={level} maxLength={2} hideControls label="Grade Level" />
 
-                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleAddUser}>{isUserLoading ? <Loader color="white" size="sm" /> : "Add User"}</Button>
+                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleAddUser}>{status === 'loading' ? <Loader color="white" size="sm" /> : "Add User"}</Button>
             </Modal>
 
             {/* Edit User Modal */}
@@ -318,7 +312,7 @@ export default function TableView({ colorScheme }) {
                 <NumberInput ref={phone} maxLength={10} hideControls label="Phone" placeholder={selectedUserData?.phone} />
                 <NumberInput ref={level} maxLength={2} hideControls label="Grade Level" placeholder={selectedUserData?.grade_level} />
 
-                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleUserUpdate}>{isUserLoading ? <Loader color="white" size="sm" /> : "Update"}</Button>
+                <Button style={{ width: '100%' }} size="xs" type="submit" mt='lg' onClick={handleUserUpdate}>{status === 'loading' ? <Loader color="white" size="sm" /> : "Update"}</Button>
             </Modal>
 
             {/* Delete User Modal */}
