@@ -220,6 +220,8 @@ export default function TableView({ colorScheme }) {
         dispatch(fetchUsers())
     }, [dispatch, rerender]);
 
+    console.log(users);
+
     // Table Configs
     const usersColumns = [
         { name: 'User ID', selector: row => row.id, sortable: true, left: true },

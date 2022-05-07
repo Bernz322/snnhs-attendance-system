@@ -137,7 +137,7 @@ const userSlice = createSlice({
                 state.isUserLoading = false
                 state.isUserSuccess = true
                 state.isUserError = false
-                state.users = state.users.filter(user => user.rfid !== action.payload.rfid)
+                state.users = state.users.filter(user => user.id !== action.payload.id)
             })
             .addCase(deleteUser.rejected, (state, action) => {
                 state.isUserLoading = false
