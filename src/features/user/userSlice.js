@@ -66,7 +66,6 @@ export const deleteUser = createAsyncThunk("user/delete", async (rfid, thunkAPI)
             }
         }
         const res = await axios.delete(`${API_URL}/${rfid}`, config)
-        console.log(res.data);
         return res.data
     } catch (error) {
         const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString()

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput, LoadingOverlay } from '@mantine/core';
+import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput } from '@mantine/core';
 import DataTable from 'react-data-table-component'
 import { ArrowNarrowDown, Edit, Eye, Trash, Check, X } from 'tabler-icons-react';
 import dayjs from 'dayjs'
@@ -121,23 +121,7 @@ export default function TableView({ colorScheme }) {
 
         dispatch(addUser(newUserData))
         setAddUserOpened(false)
-
-        if (status === 'success') {
-            showNotification({
-                title: 'Successfully Added',
-                autoclose: 2500,
-                color: "green"
-            })
-        }
-
-        if (status === 'failed') {
-            showNotification({
-                title: 'Failed',
-                message: UserMessage,
-                autoclose: 5000,
-                color: "red"
-            })
-        }
+        setRerender(!rerender)
     }
 
     // Update User
@@ -157,24 +141,6 @@ export default function TableView({ colorScheme }) {
         }
         dispatch(updateUser(updateData))
         setEditProfileOpened(false)
-
-        if (status === 'success') {
-
-            showNotification({
-                title: 'Successfully Updated',
-                autoclose: 2500,
-                color: "green"
-            })
-        }
-
-        if (status === 'failed') {
-            showNotification({
-                title: 'Failed',
-                message: UserMessage,
-                autoclose: 5000,
-                color: "red"
-            })
-        }
         setRerender(!rerender)
     }
 
@@ -186,35 +152,26 @@ export default function TableView({ colorScheme }) {
     const handleUserDelete = () => {
         dispatch(deleteUser(userIdToDelete))
         setDeleteUserModal(false)
-
-        if (status === 'failed') {
-            showNotification({
-                title: 'Deleting user failed!',
-                message: UserMessage,
-                autoClose: 5000,
-                color: 'red',
-                icon: <X />
-            })
-        }
-
-        if (status === 'success') {
-            showNotification({
-                title: 'Deleted user successfully!',
-                autoClose: 3000,
-                color: 'green',
-                icon: <Check />
-            })
-        }
-
         setRerender(!rerender)
-
     }
 
     useEffect(() => {
-        dispatch(fetchUsers())
-    }, [dispatch, rerender]);
+        
+        if (status === 'failed') {
+            showNotification({
+                title: 'Failed',
+                message: UserMessage,
+                autoclose: 5000,
+                color: "red"
+            })
+        }
 
-    console.log(users);
+        dispatch(fetchUsers())
+
+        return () => {
+            dispatch(userReset())
+        }
+    }, [dispatch, rerender,UserMessage]);
 
     // Table Configs
     const usersColumns = [
@@ -257,7 +214,6 @@ export default function TableView({ colorScheme }) {
 
     return (
         <Paper className={classes.paper}>
-            <LoadingOverlay visible={status === 'loading'} overlayOpacity={0} overlayColor="red" />
             <Group position="apart">
                 <TextInput
                     label="Filter by Name"
