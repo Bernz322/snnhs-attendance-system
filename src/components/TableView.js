@@ -67,8 +67,6 @@ export default function TableView({ colorScheme }) {
     const dispatch = useDispatch()
     const { users, status, UserMessage } = useSelector(state => state.user)
 
-    const [rerender, setRerender] = useState(false);
-
     // Style and Filter States
     const [focused, setFocused] = useState(false);
     const [filterByName, setFilterByName] = useState('');
@@ -121,7 +119,6 @@ export default function TableView({ colorScheme }) {
 
         dispatch(addUser(newUserData))
         setAddUserOpened(false)
-        setRerender(!rerender)
     }
 
     // Update User
@@ -141,7 +138,6 @@ export default function TableView({ colorScheme }) {
         }
         dispatch(updateUser(updateData))
         setEditProfileOpened(false)
-        setRerender(!rerender)
     }
 
     // Delete User
@@ -152,7 +148,6 @@ export default function TableView({ colorScheme }) {
     const handleUserDelete = () => {
         dispatch(deleteUser(userIdToDelete))
         setDeleteUserModal(false)
-        setRerender(!rerender)
     }
 
     useEffect(() => {
@@ -171,7 +166,7 @@ export default function TableView({ colorScheme }) {
         return () => {
             dispatch(userReset())
         }
-    }, [dispatch, rerender,UserMessage]);
+    }, [dispatch,UserMessage]);
 
     // Table Configs
     const usersColumns = [
