@@ -123,9 +123,8 @@ export default function TableView({ colorScheme }) {
         setAddUserOpened(false)
 
         if (!isUserLoading) {
-            dispatch(userReset())
             if (isUserSuccess) {
-                dispatch(userReset())
+
                 showNotification({
                     title: 'Successfully Added',
                     autoclose: 2500,
@@ -164,9 +163,8 @@ export default function TableView({ colorScheme }) {
         setEditProfileOpened(false)
 
         if (!isUserLoading) {
-            dispatch(userReset())
             if (isUserSuccess) {
-                dispatch(userReset())
+
                 showNotification({
                     title: 'Successfully Updated',
                     autoclose: 2500,
@@ -197,7 +195,6 @@ export default function TableView({ colorScheme }) {
         setDeleteUserModal(false)
 
         if (!isUserLoading) {
-            dispatch(userReset())
             if (isUserError) {
                 showNotification({
                     title: 'Deleting user failed!',
