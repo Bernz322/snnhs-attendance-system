@@ -184,6 +184,7 @@ export default function TableView({ colorScheme }) {
             }
             setRerender(!rerender)
         }
+        dispatch(fetchUsers())
     }
 
     // Delete User
