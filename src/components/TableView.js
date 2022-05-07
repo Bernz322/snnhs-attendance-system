@@ -162,7 +162,28 @@ export default function TableView({ colorScheme }) {
         }
         dispatch(updateUser(updateData))
         setEditProfileOpened(false)
-        setRerender(!rerender)
+
+        if (!isUserLoading) {
+            dispatch(userReset())
+            if (isUserSuccess) {
+                dispatch(userReset())
+                showNotification({
+                    title: 'Successfully Updated',
+                    autoclose: 2500,
+                    color: "green"
+                })
+            }
+
+            if (isUserError) {
+                showNotification({
+                    title: 'Failed',
+                    message: UserMessage,
+                    autoclose: 5000,
+                    color: "red"
+                })
+            }
+            setRerender(!rerender)
+        }
     }
 
     // Delete User
@@ -174,19 +195,17 @@ export default function TableView({ colorScheme }) {
         dispatch(deleteUser(userIdToDelete))
         setDeleteUserModal(false)
 
-
         if (!isUserLoading) {
             dispatch(userReset())
             if (isUserError) {
                 showNotification({
-                    title: 'Deleted user failed!',
+                    title: 'Deleting user failed!',
                     message: UserMessage,
                     autoClose: 5000,
                     color: 'red',
                     icon: <X />
                 })
             }
-
             if (isUserSuccess) {
                 showNotification({
                     title: 'Deleted user successfully!',
@@ -195,7 +214,6 @@ export default function TableView({ colorScheme }) {
                     icon: <Check />
                 })
             }
-
             setRerender(!rerender)
         }
     }
@@ -239,13 +257,13 @@ export default function TableView({ colorScheme }) {
         },
     ];
 
-    const filteredItems = users.filter(
+    const filteredItems = users?.filter(
         item => item.name && item.name.toLowerCase().includes(filterByName.toLowerCase()),
     );
 
     return (
         <Paper className={classes.paper}>
-            <LoadingOverlay visible={isUserLoading} overlayOpacity={0.3} overlayColor="#c5c5c5" />
+            <LoadingOverlay visible={isUserLoading} overlayOpacity={0} overlayColor="red" />
             <Group position="apart">
                 <TextInput
                     label="Filter by Name"

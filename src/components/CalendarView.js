@@ -15,7 +15,7 @@ export default function CalendarView() {
 
     return (
         <div>
-            <LoadingOverlay visible={isAttendanceLoading} overlayOpacity={0.3} overlayColor="#c5c5c5" />
+            <LoadingOverlay visible={isAttendanceLoading} overlayOpacity={0} overlayColor="red" />
             <FullCalendar
                 defaultAllDay={true}
                 events={dates}
