@@ -1,9 +1,12 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput } from '@mantine/core';
 import DataTable from 'react-data-table-component'
 import { ArrowNarrowDown, Edit, Eye, Trash } from 'tabler-icons-react';
 import { faker } from '@faker-js/faker';
 import dayjs from 'dayjs'
+import { useSelector, useDispatch } from 'react-redux';
+
+import { fetchUserAttendance } from '../features/attendance/attendanceSlice'
 
 const useStyles = createStyles((theme, { floating }) => ({
     paper: {
@@ -60,6 +63,10 @@ const customStyles = {
 }
 
 export default function TableView({ colorScheme }) {
+    const dispatch = useDispatch()
+    const { attendance, isAttendanceLoading } = useSelector(state => state.attendance)
+
+    const [userRFID, setUserRFID] = useState('14A723');
     // Style and Filter States
     const [focused, setFocused] = useState(false);
     const [filterByName, setFilterByName] = useState('');
@@ -139,6 +146,13 @@ export default function TableView({ colorScheme }) {
         console.log('User ID', userIdToDelete)
     }
 
+    useEffect(() => {
+        dispatch(fetchUserAttendance(userRFID))
+        console.log('i ran')
+    }, [dispatch, userRFID]);
+
+    console.log(attendance)
+
     // Table Configs
     const usersColumns = [
         { name: 'User ID', selector: row => row.id, sortable: true, left: true },
@@ -155,7 +169,7 @@ export default function TableView({ colorScheme }) {
                 <>
                     <Tooltip label="View User Attendance Record" withArrow radius="md">
                         <Button radius="md" size="xxs" color='green'>
-                            <Eye size={14} strokeWidth={2} />
+                            <Eye size={14} strokeWidth={2} onClick={() => setUserRFID(row.rfid)} />
                         </Button>
                     </Tooltip>
                     <Tooltip label="Edit User" withArrow radius="md">
@@ -173,36 +187,6 @@ export default function TableView({ colorScheme }) {
             button: true,
         },
     ];
-
-    const userData = [
-        {
-            id: 1,
-            rfid: 1234567,
-            name: "Gigachard",
-            email: 'gigachard@gmail.com',
-            password: "very-strongboi437",
-            phone_number: 9071234567,
-            level: 8,
-        },
-        {
-            id: 2,
-            rfid: 1234567,
-            name: "Megachard",
-            email: 'megachard@gmail.com',
-            password: "strongboi437",
-            phone_number: 9071234567,
-            level: 8,
-        },
-        {
-            id: 3,
-            rfid: 1234567,
-            name: "Kilochard",
-            email: 'Kilochard@gmail.com',
-            password: "not-so-strongboi437",
-            phone_number: 9071234567,
-            level: 8,
-        },
-    ]
 
     const filteredItems = fakeUsers.filter(
         item => item.name && item.name.toLowerCase().includes(filterByName.toLowerCase()),
@@ -229,7 +213,7 @@ export default function TableView({ colorScheme }) {
             <DataTable
                 title="All Users"
                 columns={usersColumns}
-                data={filteredItems}
+                // data={filteredItems}
                 pagination
                 dense
                 highlightOnHover

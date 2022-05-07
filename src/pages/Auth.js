@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useForm } from '@mantine/hooks';
-import { TextInput, PasswordInput, Text, Paper, Group, Button, Divider, createStyles, Container, Space } from '@mantine/core';
+import { TextInput, PasswordInput, Text, Paper, Group, Button, createStyles, Container, Space, Loader } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { Helmet } from 'react-helmet'
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+
+import { login, authReset } from '../features/auth/authSlice';
 
 const useStyles = createStyles((theme) => ({
     paper: {
@@ -34,8 +38,11 @@ const useStyles = createStyles((theme) => ({
 }));
 
 
-export default function Auth({ setUser }) {
+export default function Auth() {
     const { classes } = useStyles();
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { user, isError, isSuccess, isLoading, message } = useSelector(state => state.auth)
 
     const form = useForm({
         initialValues: {
@@ -44,32 +51,42 @@ export default function Auth({ setUser }) {
         },
     });
 
-    const validateEmail = (email) => {
-        return email.match(
-            /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        );
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-        if (!validateEmail(form.values.email)) {
+        const userData = {
+            email: form.values.email,
+            password: form.values.password,
+        }
+
+        if (!userData.email || !userData.password) {
             showNotification({
-                title: 'Uhuh! Something went wrong',
-                message: "Invalid email address.",
+                title: 'Please fill in fields.',
                 autoclose: 4000,
                 color: "red"
             })
             return
         }
 
-        const userData = {
-            email: form.values.email,
-            password: form.values.password,
-        }
-        console.log(userData);
-        setUser(true)
+        dispatch(login(userData))
     }
+
+    useEffect(() => {
+        if (isError) {
+            showNotification({
+                title: 'Uhuh! Something went wrong',
+                message: message,
+                autoclose: 4000,
+                color: "red"
+            })
+        }
+
+        if (isSuccess || user) {
+            navigate('/')
+        }
+
+        dispatch(authReset())
+    }, [dispatch, isError, isSuccess, message, navigate, user]);
 
     return (
         <Paper radius={0} className={classes.paper}>
@@ -96,7 +113,7 @@ export default function Auth({ setUser }) {
 
                     <Group grow mt="xl">
                         {/* <Button type="submit">{isLoading ? <Loader color="white" size="sm" /> : upperFirst(type)}</Button> */}
-                        <Button className={classes.button} type="submit">Login</Button>
+                        <Button className={classes.button} type="submit">{isLoading ? <Loader color="white" size="sm" /> : 'Login'}</Button>
                     </Group>
                 </form>
             </Container>
