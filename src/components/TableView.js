@@ -53,7 +53,7 @@ const useStyles = createStyles((theme, { floating }) => ({
         width: '200px'
 
     },
-    head:{
+    head: {
         [theme.fn.smallerThan('xs')]: {
             justifyContent: 'center',
         },
@@ -86,6 +86,14 @@ export default function TableView({ colorScheme }) {
     const [selectedUserData, setSelectedUserData] = useState();
     const [userIdToDelete, setUserIdToDelete] = useState();
 
+    const validateEmail = (email) => {
+        return String(email)
+            .toLowerCase()
+            .match(
+                /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            );
+    };
+
     // Input Refs
     const rfid = useRef("")
     const name = useRef("")
@@ -105,18 +113,45 @@ export default function TableView({ colorScheme }) {
     }
     const handleAddUser = () => {
         const newUserData = {
-            rfid: rfid.current.value,
-            name: name.current.value,
-            email: email.current.value,
-            password: password.current.value,
-            phone: phone.current.value,
-            grade_level: level.current.value,
+            rfid: rfid.current.value.trim(),
+            name: name.current.value.trim(),
+            email: email.current.value.trim(),
+            password: password.current.value.trim(),
+            phone: phone.current.value.trim(),
+            grade_level: level.current.value.trim(),
         }
 
         if (!newUserData.rfid || !newUserData.name || !newUserData.email || !newUserData.password || !newUserData.phone || !newUserData.grade_level) {
             return showNotification({
                 title: 'Fill in all fields',
-                autoClose: 2000,
+                autoClose: 3000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
+        if (!validateEmail(newUserData.email)) {
+            return showNotification({
+                title: 'Invalid email',
+                autoClose: 3000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
+        if (newUserData.phone.length <= 9) {
+            return showNotification({
+                title: 'Phone must be 10 digits long',
+                autoClose: 3000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
+        if (newUserData.grade_level !== '11' && newUserData.grade_level !== '12') {
+            return showNotification({
+                title: 'Grade level must be 11 or 12',
+                autoClose: 3000,
                 color: 'red',
                 icon: <X />
             })
@@ -133,14 +168,42 @@ export default function TableView({ colorScheme }) {
     }
     const handleUserUpdate = () => {
         const updateData = {
-            userRFID: selectedUserData.RFID,
-            rfid: rfid.current.value,
-            name: name.current.value,
-            email: email.current.value,
-            password: password.current.value,
-            phone: phone.current.value,
-            grade_level: level.current.value,
+            userRFID: selectedUserData.RFID.trim(),
+            rfid: rfid.current.value.trim(),
+            name: name.current.value.trim(),
+            email: email.current.value.trim(),
+            password: password.current.value.trim(),
+            phone: phone.current.value.trim(),
+            grade_level: level.current.value.trim(),
         }
+
+        if (updateData.email && !validateEmail(updateData.email)) {
+            return showNotification({
+                title: 'Invalid email',
+                autoClose: 3000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
+        if (updateData.phone && updateData.phone.length <= 9) {
+            return showNotification({
+                title: 'Phone must be 10 digits long',
+                autoClose: 3000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
+        if (updateData.grade_level && updateData.grade_level !== '11' && updateData.grade_level !== '12') {
+            return showNotification({
+                title: 'Grade level must be 11 or 12',
+                autoClose: 3000,
+                color: 'red',
+                icon: <X />
+            })
+        }
+
         dispatch(updateUser(updateData))
         setEditProfileOpened(false)
     }
@@ -228,7 +291,7 @@ export default function TableView({ colorScheme }) {
                 <Button radius="sm" color="#800000" onClick={handleUserAddButtonClick}>Add User</Button>
             </Group>
 
-            <Space height='md'/>
+            <Space height='md' />
 
             <DataTable
                 title="All Users"
