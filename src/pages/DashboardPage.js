@@ -50,6 +50,7 @@ const useStyles = createStyles((theme) => ({
         display: 'none',
         [theme.fn.smallerThan('xs')]: {
             display: 'flex',
+            justifyContent: 'flex-end',
         },
     }
 }));
@@ -97,7 +98,6 @@ export default function DashboardPage({ colorScheme }) {
                             </a>
                         }
                         <Group position="apart" grow pl="sm" pr="sm" mt="lg" className={classes.left}>
-                            <LightDarkButton />
                             <ProfileMenu />
                         </Group>
                     </Navbar.Section>

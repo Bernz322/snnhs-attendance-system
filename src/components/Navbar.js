@@ -17,13 +17,20 @@ const useStyles = createStyles((theme) => ({
         alignItems: 'center',
         height: '100%',
         [theme.fn.smallerThan('xs')]: {
-            justifyContent: 'left',
+            justifyContent: 'space-between',
         },
     },
 
     left: {
         [theme.fn.smallerThan('xs')]: {
             display: 'none',
+        },
+    },
+
+    ld: {
+        visibility: 'hidden',
+        [theme.fn.smallerThan('xs')]: {
+            visibility: 'visible'
         },
     }
 }));
@@ -44,11 +51,11 @@ export default function Navbar({ setOpenedDashboard, openedDashboard, dashboard,
                             onClick={() => setOpenedDashboard((o) => !o)}
                             size="sm"
                             color={theme.colors.gray[6]}
-                            mr="xl"
                         />
                     </MediaQuery>
                 }
                 <Logo />
+                <div className={classes.ld}><LightDarkButton /></div>
                 <Group spacing={5} className={classes.left}>
                     <LightDarkButton />
                     {user &&

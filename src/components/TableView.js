@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput } from '@mantine/core';
+import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput, Space } from '@mantine/core';
 import DataTable from 'react-data-table-component'
 import { ArrowNarrowDown, Edit, Eye, Trash, Check, X } from 'tabler-icons-react';
 import dayjs from 'dayjs'
@@ -53,6 +53,11 @@ const useStyles = createStyles((theme, { floating }) => ({
         width: '200px'
 
     },
+    head:{
+        [theme.fn.smallerThan('xs')]: {
+            justifyContent: 'center',
+        },
+    }
 }));
 
 const customStyles = {
@@ -151,7 +156,7 @@ export default function TableView({ colorScheme }) {
     }
 
     useEffect(() => {
-        
+
         if (status === 'failed') {
             showNotification({
                 title: 'Failed',
@@ -166,7 +171,7 @@ export default function TableView({ colorScheme }) {
         return () => {
             dispatch(userReset())
         }
-    }, [dispatch,UserMessage]);
+    }, [dispatch, UserMessage]);
 
     // Table Configs
     const usersColumns = [
@@ -209,7 +214,7 @@ export default function TableView({ colorScheme }) {
 
     return (
         <Paper className={classes.paper}>
-            <Group position="apart">
+            <Group position="apart" mb='md' mt='md' className={classes.head}>
                 <TextInput
                     label="Filter by Name"
                     placeholder="Search Student Name"
@@ -218,12 +223,12 @@ export default function TableView({ colorScheme }) {
                     onChange={(event) => setFilterByName(event.currentTarget.value)}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setFocused(false)}
-                    mt="md"
-                    mb="lg"
                     autoComplete="nope"
                 />
                 <Button radius="sm" color="#800000" onClick={handleUserAddButtonClick}>Add User</Button>
             </Group>
+
+            <Space height='md'/>
 
             <DataTable
                 title="All Users"
@@ -268,7 +273,7 @@ export default function TableView({ colorScheme }) {
 
             {/* Delete User Modal */}
             <Modal opened={deleteUserModal} onClose={() => setDeleteUserModal(false)} title="Are you sure to delete this account?" centered >
-                <Text align='center' color='yellow' size='sm'>All created listings and reservations will also be deleted.</Text>
+                <Text align='center' color='yellow' size='sm'>All attendance records of this account will also be deleted.</Text>
                 <Group position="apart" mt='md'>
                     <Button radius="md" style={{ width: "100%", flex: 6 }} color="red" onClick={() => handleUserDelete()}>Yes</Button>
                     <Button radius="md" style={{ width: "100%", flex: 6 }} color="blue" onClick={() => setDeleteUserModal(false)}>No</Button>
