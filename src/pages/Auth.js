@@ -100,7 +100,7 @@ export default function Auth() {
                 <Space h='lg' />
                 <form onSubmit={handleSubmit}>
                     <Group direction="column" grow>
-                        <TextInput required label="Email" placeholder="pogi@vacay.io" value={form.values.email}
+                        <TextInput required label="Email" placeholder="youremail@gmail.com" value={form.values.email}
                             onChange={(event) => form.setFieldValue('email', event.currentTarget.value)}
                             error={form.errors.email && 'Invalid email'}
                         />
