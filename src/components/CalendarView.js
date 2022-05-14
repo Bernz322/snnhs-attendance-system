@@ -21,7 +21,6 @@ export default function CalendarView() {
                 events={dates}
                 plugins={[dayGridPlugin, interactionPlugin]}
                 initialView="dayGridMonth"
-                dateClick={(e) => console.log(e)}
                 weekends={false}
                 height={650}
             />
