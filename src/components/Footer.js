@@ -1,6 +1,6 @@
 import React from 'react'
 import { Container, Text, createStyles, Group, ActionIcon } from '@mantine/core';
-import { BrandFacebook, BrandTwitter } from 'tabler-icons-react';
+import { BrandFacebook } from 'tabler-icons-react';
 import { Logo } from '../components'
 
 const useStyles = createStyles((theme) => ({
@@ -35,6 +35,11 @@ const useStyles = createStyles((theme) => ({
     },
     powered: {
         color: theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.dark[8],
+    },
+    providers: {
+        '&:hover': {
+            color: theme.colors.maroon[2],
+        },
     }
 
 }))
@@ -55,17 +60,16 @@ export default function Footer() {
                                 <BrandFacebook size={18} />
                             </ActionIcon>
                         </a>
-                        <a href="https://twitter.com" target="_blank" rel="noreferrer">
-                            <ActionIcon size="lg">
-                                <BrandTwitter size={18} />
-                            </ActionIcon>
-                        </a>
                     </div>
                     <Text size="xxs" className={classes.powered}>
-                        Powered by:
+                        Provided by:
                     </Text>
                     <Text size="xxs" className={classes.powered}>
-                        Surigao del Norte National High School
+                        <a className={classes.providers} href="https://github.com/Bernz322" target="_blank" rel='noreferrer'>Abucejo</a>
+                        <span> | </span>
+                        <a className={classes.providers} href="https://github.com/roger2020-ui" target="_blank" rel='noreferrer'>Bernadas</a>
+                        <span> | </span>
+                        <a className={classes.providers} href="https://github.com/abby2727" target="_blank" rel='noreferrer'>Pangandaman</a>
                     </Text>
                 </Group>
             </Container>
