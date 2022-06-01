@@ -65,11 +65,11 @@ export default function Footer() {
                         Provided by:
                     </Text>
                     <Text size="xxs" className={classes.powered}>
-                        <a className={classes.providers} href="https://github.com/Bernz322" target="_blank" rel='noreferrer'>Abucejo</a>
+                        <a className={classes.providers} href="https://github.com/roger2020-ui" target="_blank" rel='noreferrer'>RAbucejo</a>
                         <span> | </span>
-                        <a className={classes.providers} href="https://github.com/roger2020-ui" target="_blank" rel='noreferrer'>Bernadas</a>
+                        <a className={classes.providers} href="https://github.com/Bernz322" target="_blank" rel='noreferrer'>JBernadas</a>
                         <span> | </span>
-                        <a className={classes.providers} href="https://github.com/abby2727" target="_blank" rel='noreferrer'>Pangandaman</a>
+                        <a className={classes.providers} href="https://github.com/abby2727" target="_blank" rel='noreferrer'>APangandaman</a>
                     </Text>
                 </Group>
             </Container>
