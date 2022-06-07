@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { AppShell, Navbar, createStyles, Paper, Container, Group, Title } from '@mantine/core';
-import { CalendarStats, LayoutDashboard, User } from 'tabler-icons-react';
+import { AppShell, Navbar, createStyles, Paper, Container, Group, Title, SimpleGrid, Text } from '@mantine/core';
+import { CalendarEvent, CalendarStats, LayoutDashboard, User, UserPlus } from 'tabler-icons-react';
 import { Helmet } from 'react-helmet';
 import { useSelector } from 'react-redux';
 
 import TopBar from '../components/Navbar'
-import { CalendarView, LightDarkButton, ProfileMenu, TableView, UserCalendarView } from '../components';
+import { CalendarView, ProfileMenu, TableView, UserCalendarView } from '../components';
 
 const useStyles = createStyles((theme) => ({
     main: {
@@ -52,13 +52,33 @@ const useStyles = createStyles((theme) => ({
             display: 'flex',
             justifyContent: 'flex-end',
         },
-    }
+    },
+    root: {
+        paddingTop: theme.spacing.xl * 1.5,
+        paddingBottom: theme.spacing.xl * 1.5,
+    },
+
+    value: {
+        fontSize: 24,
+        fontWeight: 700,
+        lineHeight: 1,
+    },
+    icon: {
+        color: theme.colorScheme === 'dark' ? theme.colors.dark[3] : theme.colors.gray[4],
+    },
+
+    title: {
+        fontWeight: 700,
+        textTransform: 'uppercase',
+    },
 }));
 
 
 export default function DashboardPage({ colorScheme }) {
     const { classes, cx } = useStyles();
     const { user } = useSelector(state => state.auth)
+    const { currentDayRecord } = useSelector(state => state.attendance)
+    const { users } = useSelector(state => state.user)
 
     const [active, setActive] = useState('Dashboard');
     const [userActive, setUserActive] = useState('Attendance');
@@ -113,6 +133,40 @@ export default function DashboardPage({ colorScheme }) {
                 </Helmet>
                 {user?.is_admin ?
                     <>
+                        <div className={classes.root}>
+                            <SimpleGrid
+                                cols={2}
+                                breakpoints={[
+                                    { maxWidth: 'md', cols: 2 },
+                                    { maxWidth: 'xs', cols: 1 },
+                                ]}
+                            >
+                                <Paper withBorder p="md" radius="md">
+                                    <Group position="apart">
+                                        <Text size="xs" color="dimmed" className={classes.title}>
+                                            Student Count
+                                        </Text>
+                                        <User className={classes.icon} size={22} />
+                                    </Group>
+                                    <Text className={classes.value}>{users.length - 1}</Text>
+                                    <Text size="xs" color="dimmed" mt={7}>
+                                        All students in the database excluding the admin
+                                    </Text>
+                                </Paper>
+                                <Paper withBorder p="md" radius="md">
+                                    <Group position="apart">
+                                        <Text size="xs" color="dimmed" className={classes.title}>
+                                            Today's Attendance Count
+                                        </Text>
+                                        <CalendarEvent className={classes.icon} size={22} />
+                                    </Group>
+                                    <Text className={classes.value}>{currentDayRecord.length}</Text>
+                                    <Text size="xs" color="dimmed" mt={7}>
+                                        All attendance recorded today
+                                    </Text>
+                                </Paper>
+                            </SimpleGrid>
+                        </div>
                         {(active === "User" || active === "Dashboard") &&
                             <Paper className={classes.paper2}>
                                 <Title order={1} align='center'>User Table</Title>

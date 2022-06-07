@@ -52,6 +52,24 @@ a {
   margin-bottom: 15px;
 }
 
+.fc-daygrid-event-dot,
+.fc-event-time {
+  display: none;
+}
+
+.fc-daygrid-event-harness {
+  background-color: #93d58a;
+}
+
+.fc-daygrid-event-harness:hover {
+  cursor: pointer;
+}
+
+.fc-event-title {
+  color: white;
+  text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
+}
+
 @media screen and (max-width: 350px) {
   /* Smaller Status when screen is smaller */
   .fc-event-title,

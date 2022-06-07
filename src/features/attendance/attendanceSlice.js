@@ -3,6 +3,7 @@ import axios from 'axios'
 
 const initialState = {
     attendance: [],
+    currentDayRecord: [],
     isAttendanceError: false,
     isAttendanceSuccess: false,
     isAttendanceLoading: false,
@@ -14,6 +15,16 @@ const API_URL = process.env.NODE_ENV !== 'production' ? `/api/attendance` : `${p
 export const fetchUserAttendance = createAsyncThunk("attendance/fetch", async (rfid, thunkAPI) => {
     try {
         const res = await axios.get(`${API_URL}/${rfid}`)
+        return res.data
+    } catch (error) {
+        const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString()
+        return thunkAPI.rejectWithValue(message)
+    }
+})
+
+export const fetchTodayAttendanceCount = createAsyncThunk("attendanceToday/fetch", async (rfid, thunkAPI) => {
+    try {
+        const res = await axios.get(`${API_URL}/day/attendanceCount`)
         return res.data
     } catch (error) {
         const message = (error.response && error.response.data && error.response.data.message) || error.message || error.toString()
@@ -47,6 +58,20 @@ const attendanceSlice = createSlice({
                 state.isAttendanceError = true;
                 state.attendanceMessage = action.payload;
                 state.attendance = null;
+            })
+            .addCase(fetchTodayAttendanceCount.pending, state => {
+                state.isAttendanceLoading = true
+            })
+            .addCase(fetchTodayAttendanceCount.fulfilled, (state, action) => {
+                state.isAttendanceLoading = false;
+                state.isAttendanceSuccess = true;
+                state.currentDayRecord = action.payload;
+            })
+            .addCase(fetchTodayAttendanceCount.rejected, (state, action) => {
+                state.isAttendanceLoading = false;
+                state.isAttendanceError = true;
+                state.attendanceMessage = action.payload;
+                state.currentDayRecord = null;
             })
     }
 })

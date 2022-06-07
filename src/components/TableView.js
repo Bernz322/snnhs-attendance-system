@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Button, createStyles, Paper, Tooltip, TextInput, Modal, Group, Text, NumberInput, Loader, PasswordInput, Space } from '@mantine/core';
 import DataTable from 'react-data-table-component'
-import { ArrowNarrowDown, Edit, Eye, Trash, Check, X } from 'tabler-icons-react';
+import { ArrowNarrowDown, Edit, Eye, Trash, X } from 'tabler-icons-react';
 import dayjs from 'dayjs'
 import { useSelector, useDispatch } from 'react-redux';
 import { showNotification } from '@mantine/notifications';
 
-import { fetchUserAttendance } from '../features/attendance/attendanceSlice'
+import { fetchUserAttendance, fetchTodayAttendanceCount } from '../features/attendance/attendanceSlice'
 import { fetchUsers, addUser, updateUser, deleteUser, userReset } from '../features/user/userSlice'
 
 const useStyles = createStyles((theme, { floating }) => ({
@@ -230,6 +230,7 @@ export default function TableView({ colorScheme }) {
         }
 
         dispatch(fetchUsers())
+        dispatch(fetchTodayAttendanceCount())
 
         return () => {
             dispatch(userReset())
