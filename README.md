@@ -31,7 +31,7 @@
 </ul>
 <h3>Hardware</h3>
 <ul>
-    <li>Raspberry Pi 4B 4GB</li>
+    <li>Raspberry Pi Model B/4GB</li>
     <li>RC522 RFID Reader</li>
     <li>1.3inch OLED - 128x64 (I2C)</li>
     <li>SIM900A GSM Module</li>
